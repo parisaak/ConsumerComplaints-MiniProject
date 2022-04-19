@@ -1,0 +1,66 @@
+---
+title: "My Findings of Consumer Complaints"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+library(tidyverse)
+library(janitor)
+library(writexl)
+library(readr)
+library(ggplot2)
+library(lubridate)
+library(readxl)
+library(DT)
+
+complaints <- readRDS("~/Desktop/class/smpa_repos/ConsumerComplaints-MiniProject/complaints.rds")
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Most common type of complaint
+
+These are the three companiest with far more complaints than any other company in the dataset. We can see how the most common issue reported is "Incorrect information on your report" and "Problem with company's investigation" second. These would be areas to target for improvement within the companies.
+
+```{r}
+top_complaints <- complaints %>% filter(company == "Experian Information Solutions Inc." | company == "TRANSUNION INTERMEDIATE HOLDINGS, INC." | company == "EQUIFAX, INC." ) %>% group_by(issue) %>% count(company, sort = TRUE) %>% head(9)
+
+ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + geom_col() + scale_fill_manual(values=c("green", "purple", "orange"))
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Issues in Florida by Company
+This is a table showing the number of issues by company, specifically to Florida. I wanted to look at Florida because I know the rates of identity theft are really bad, and I wanted to see which issues are the most pervasive. I found "Incorrect information on your report" to be the highest reported issue in the state.
+
+```{r}
+complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
+
+FL_complaints <- complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
+
+datatable(FL_complaints,
+          rownames = FALSE,
+          filter = "top",
+          extensions = 'Buttons',
+          options = list(searchHighlight = TRUE, bPaginate = FALSE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'print')
+                         ))
+```
+
+### Number of issues over time
+I wanted to see if there are any noticeable trends in the amount of complaints throughout the year. I found that there is a somewhat steady increase in reported issues over time, with the largest increase right at the end of the year before dropping off. A steady increase in complaints raises the question as to why each month more issues are reported.
+
+```{r}
+complaints %>% count(mm_yy_sent_to_company)
+
+complaints_per_month <- complaints %>% count(mm_yy_sent_to_company)
+
+ggplot() + geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + labs(title = " ", x="Month", y="Number of reported issues")
+```
+
