@@ -31,7 +31,13 @@ These are the three companiest with far more complaints than any other company i
 ```{r}
 top_complaints <- complaints %>% filter(company == "Experian Information Solutions Inc." | company == "TRANSUNION INTERMEDIATE HOLDINGS, INC." | company == "EQUIFAX, INC." ) %>% group_by(issue) %>% count(company, sort = TRUE) %>% head(9)
 
-ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + geom_col() + scale_fill_manual(values=c("green", "purple", "orange"))
+ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + 
+geom_col() + 
+scale_fill_manual(values=c("green", "purple", "orange")) +
+scale_fill_discrete(name = "Issue Reported", labels=c("Improper use of company report", "Incorrect info on company report", "Problem with company investigation
+into another problem")) +
+  scale_x_discrete(labels=c("Experian Information Solutions Inc." = "Experian", "TRANSUNION INTERMEDIATE HOLDINGS, INC." = "Transunion", "EQUIFAX, INC." = "Equifax")) + 
+  labs(title = " ", x="Company", y="Number of Complaints")
 ```
 
 Column {data-width=350}
@@ -58,6 +64,9 @@ I wanted to see if there are any noticeable trends in the amount of complaints t
 ```{r}
 complaints_per_month <- complaints %>% count(mm_yy_sent_to_company)
 
-ggplot() + geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + labs(title = " ", x="Month", y="Number of reported issues")
+ggplot() + 
+  geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + 
+  labs(title = " ", x="Month", y="Number of reported issues") +
+  scale_x_discrete(labels=c("Mar 2020" = "March", "Apr 2020" = "April", "May 2020" = "May", "Jun 2020" = "June", "Jul 2020" = "July", "Aug 2020" = "August", "Sep 2020" = "Sep.", "Oct 2020" = "Oct.", "Nov 2020" = "Nov.", "Dec 2020" = "Dec.", "Jan 2021" = "Jan. 2021"))
 ```
 
