@@ -1,0 +1,76 @@
+---
+title: "Consumer Complaints Mini-Project"
+author: "Parisa Akbarpour"
+date: "4/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(writexl)
+library(readr)
+library(ggplot2)
+library(lubridate)
+library(readxl)
+library(DT)
+
+complaints <- readRDS("~/Desktop/class/smpa_repos/ConsumerComplaints-MiniProject/complaints.rds")
+```
+
+## Working on the dataset
+
+First I wanted to see which companies received the most complaints to identify companies which might be facing large problems.
+
+```{r}
+
+complaints %>% count(company, sort = TRUE) %>% head(10)
+
+```
+
+I can see that the top three companies have far more complaints than the rest of the companies listed, so I wanted to isolate those three. Then, I thought I would look at what issues are most prevalent within each company.
+
+```{r top_complaints}
+top_complaints <- complaints %>% filter(company == "Experian Information Solutions Inc." | company == "TRANSUNION INTERMEDIATE HOLDINGS, INC." | company == "EQUIFAX, INC." ) %>% group_by(issue) %>% count(company, sort = TRUE) %>% head(9)
+
+ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + geom_col() + scale_fill_manual(values=c("green", "purple", "orange"))
+
+```
+
+## Florida
+
+I then wanted to look at Florida specifically because the rates of identity theft there are the highest in the country.
+
+```{r complaints, echo=FALSE}
+
+complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
+
+FL_complaints <- complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
+
+datatable(FL_complaints,
+          rownames = FALSE,
+          filter = "top",
+          extensions = 'Buttons',
+          options = list(searchHighlight = TRUE, bPaginate = FALSE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'print')
+                         ))
+
+```
+
+I thought this table would be useful in order to see what are the biggest issues reported in Florida, and group it by the companies.
+
+# Timeline of issues
+
+Next, I thought it would be interesting to plot the number of isues over time, to see if there's a certain period of time where an unusual amount of issues are reported.
+
+```{r}
+complaints %>% count(mm_yy_sent_to_company)
+
+complaints_per_month <- complaints %>% count(mm_yy_sent_to_company)
+
+ggplot() + geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + labs(title = " ", x="Month", y="Number of reported issues")
+
+```
+
+Here we see a somewhat steady increase in reported issues over time, with the largest increase right at the end of the year before dropping off. A steady increase in complaints raises the question as to why each month more issues are reported.
