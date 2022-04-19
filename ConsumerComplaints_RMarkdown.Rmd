@@ -28,6 +28,7 @@ First I wanted to see which companies received the most complaints to identify c
 
 complaints %>% count(company, sort = TRUE) %>% head(10)
 
+
 ```
 
 I can see that the top three companies have far more complaints than the rest of the companies listed, so I wanted to isolate those three. Then, I thought I would look at what issues are most prevalent within each company.
@@ -57,6 +58,7 @@ datatable(FL_complaints,
                          ))
 
 ```
+
 
 I thought this table would be useful in order to see what are the biggest issues reported in Florida, and group it by the companies.
 
