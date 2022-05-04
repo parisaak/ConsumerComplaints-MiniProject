@@ -75,7 +75,7 @@ This is a table showing the number of issues by company, specifically to Florida
 
 ```{r, fig.width=5, fig.height=3}
 
-FL_complaints <- complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
+FL_complaints <- complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE) %>% clean_names()
 
 datatable(FL_complaints,
           rownames = FALSE,
@@ -93,7 +93,7 @@ I wanted to see what the biggest issues were within the complaints regarding deb
 
 ```{r, fig.width=5, fig.height=3}
 
-Debt_complaints <- complaints %>% filter(product == "Debt collection") %>% group_by(company) %>% count(sub_issue, sort = TRUE)
+Debt_complaints <- complaints %>% filter(product == "Debt collection") %>%  filter(sub_issue == "Debt was result of identity theft") %>% select(company, sub_product, consumer_complaint_narrative, company_response_to_consumer, company_public_response, state) %>% group_by(company) %>%  clean_names()
 
 datatable(Debt_complaints,
           rownames = FALSE,
@@ -102,3 +102,12 @@ datatable(Debt_complaints,
           options = list(searchHighlight = TRUE, bPaginate = FALSE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'print')
                          ))
 ```
+
+
+About
+==============================================
+The data used in this assignment is from the the Consumer Financial Protection Bureau, listing all complaints from March - December 2020. The data share insight into complaints made by individuals against financial companies for various reasons, including incorrect charges.
+
+One thing to mention is that there are some blank entries for January 2021, which is marked in the dot chart by a 0 value for complaints in that month. This should be ignored, as complaints were not recorded for this month.
+
+Overall, the data could be used to help investigate areas where these companies need to improve to avoid the issues their customers face. This is important because issues around money can cause real-life problems and inconveniences. If companies are causing these issues by mistake, they should be held responsible.
