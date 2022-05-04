@@ -17,36 +17,63 @@ library(ggplot2)
 library(lubridate)
 library(readxl)
 library(DT)
+library(plotly)
 
 complaints <- readRDS("~/Desktop/class/smpa_repos/ConsumerComplaints-MiniProject/complaints.rds")
 ```
 
-Column {data-width=650}
------------------------------------------------------------------------
+Bar Graph and Dot Chart
+===================================================
+
+Column {data-width=500}
+------------------------------------------------------------------
 
 ### Most common type of complaint
 
 These are the three companiest with far more complaints than any other company in the dataset. We can see how the most common issue reported is "Incorrect information on your report" and "Problem with company's investigation" second. These would be areas to target for improvement within the companies.
 
+
+
 ```{r}
 top_complaints <- complaints %>% filter(company == "Experian Information Solutions Inc." | company == "TRANSUNION INTERMEDIATE HOLDINGS, INC." | company == "EQUIFAX, INC." ) %>% group_by(issue) %>% count(company, sort = TRUE) %>% head(9)
 
-ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + 
+graph_top_complaints <- ggplot(top_complaints, aes(x=company, y=n, fill=issue)) + 
 geom_col() + 
-scale_fill_manual(values=c("green", "purple", "orange")) +
 scale_fill_discrete(name = "Issue Reported", labels=c("Improper use of company report", "Incorrect info on company report", "Problem with company investigation
 into another problem")) +
   scale_x_discrete(labels=c("Experian Information Solutions Inc." = "Experian", "TRANSUNION INTERMEDIATE HOLDINGS, INC." = "Transunion", "EQUIFAX, INC." = "Equifax")) + 
-  labs(title = " ", x="Company", y="Number of Complaints")
+  labs(title = " ", x="Company", y="Number of Complaints") 
+
+graph_top_complaints
 ```
 
-Column {data-width=350}
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Number of issues over time
+I wanted to see if there are any noticeable trends in the amount of complaints throughout the year. I found that there is a somewhat steady increase in reported issues over time, with the largest increase right at the end of the year before dropping off. A steady increase in complaints raises the question as to why each month more issues are reported.
+
+```{r, fig.width=5, fig.height=4}
+complaints_per_month <- complaints %>% count(mm_yy_sent_to_company)
+
+complaints_over_time <- ggplot() + 
+  geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + 
+  labs(title = " ", x="Month", y="Number of reported issues") +
+  scale_x_discrete(labels=c("Mar 2020" = "March", "Apr 2020" = "April", "May 2020" = "May", "Jun 2020" = "June", "Jul 2020" = "July", "Aug 2020" = "August", "Sep 2020" = "Sep.", "Oct 2020" = "Oct.", "Nov 2020" = "Nov.", "Dec 2020" = "Dec.", "Jan 2021" = "Jan. 2021"))
+
+complaints_over_time
+```
+
+Table 1
+==============================================
+
+Column {data-width=500}
 -----------------------------------------------------------------------
 
 ### Issues in Florida by Company
 This is a table showing the number of issues by company, specifically to Florida. I wanted to look at Florida because I know the rates of identity theft are really bad, and I wanted to see which issues are the most pervasive. I found "Incorrect information on your report" to be the highest reported issue in the state.
 
-```{r}
+```{r, fig.width=5, fig.height=3}
 
 FL_complaints <- complaints %>% filter(state =="FL") %>% group_by(company) %>% count(issue, sort = TRUE)
 
@@ -58,15 +85,20 @@ datatable(FL_complaints,
                          ))
 ```
 
-### Number of issues over time
-I wanted to see if there are any noticeable trends in the amount of complaints throughout the year. I found that there is a somewhat steady increase in reported issues over time, with the largest increase right at the end of the year before dropping off. A steady increase in complaints raises the question as to why each month more issues are reported.
+Table 2
+==============================================
 
-```{r}
-complaints_per_month <- complaints %>% count(mm_yy_sent_to_company)
+### Most prominent issues within debt collection complaints
+I wanted to see what the biggest issues were within the complaints regarding debt collection. I found that many of the complaints are about debts that don't belong to the individuals who are being asked to pay it. This could be useful information in understanding that these specific companies could do a better job to verify who a debt belongs to before they reach out to a person.
 
-ggplot() + 
-  geom_point(data = complaints_per_month, mapping = aes(x = mm_yy_sent_to_company, y = n), color="blue") + 
-  labs(title = " ", x="Month", y="Number of reported issues") +
-  scale_x_discrete(labels=c("Mar 2020" = "March", "Apr 2020" = "April", "May 2020" = "May", "Jun 2020" = "June", "Jul 2020" = "July", "Aug 2020" = "August", "Sep 2020" = "Sep.", "Oct 2020" = "Oct.", "Nov 2020" = "Nov.", "Dec 2020" = "Dec.", "Jan 2021" = "Jan. 2021"))
+```{r, fig.width=5, fig.height=3}
+
+Debt_complaints <- complaints %>% filter(product == "Debt collection") %>% group_by(company) %>% count(sub_issue, sort = TRUE)
+
+datatable(Debt_complaints,
+          rownames = FALSE,
+          filter = "top",
+          extensions = 'Buttons',
+          options = list(searchHighlight = TRUE, bPaginate = FALSE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'print')
+                         ))
 ```
-
