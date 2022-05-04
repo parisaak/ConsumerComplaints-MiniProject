@@ -2,6 +2,7 @@
 title: "My Findings of Consumer Complaints"
 output: 
   flexdashboard::flex_dashboard:
+    theme: journal
     orientation: columns
     vertical_layout: fill
 ---
@@ -18,6 +19,7 @@ library(lubridate)
 library(readxl)
 library(DT)
 library(plotly)
+library(bslib)
 
 complaints <- readRDS("~/Desktop/class/smpa_repos/ConsumerComplaints-MiniProject/complaints.rds")
 ```
